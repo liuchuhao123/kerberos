@@ -1,1 +1,1 @@
-# myproject
+业务逻辑加上kerberos协议认证，通信过程基于socket实现
