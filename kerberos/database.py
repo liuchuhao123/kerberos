@@ -9,7 +9,7 @@ db_name = "student"
 
 class DB:
     def __init__(self):
-        self.conn = mysql.connect(host=host, port=port, user=user, password=password, database=db_name)
+        self.conn = mysql.Connection(host=host, port=port, user=user, password=password, database=db_name)
         self.cursor = self.conn.cursor()
 
         self._select = 'SELECT * FROM info;'
@@ -36,9 +36,11 @@ class DB:
 
     # 按学号删除信息
     def delete(self, sno):
-        self.cursor.execute(self._delete, [sno])
+        self.cursor.execute(self._delete, [sno])  # 把sno转为列表，使得%s可以用作placeholder
         self.conn.commit()
+        # 获取数据库中最近一次执行的sql语句影响的行数，当调用此方法时，最近一次执行的sql语句就是删除语句
         effect_row = self.cursor.rowcount
+        # 如果影响的行数大于0，则表示删除成功
         if effect_row > 0:
             return True
 
@@ -66,6 +68,3 @@ class DB:
         self.cursor.execute(self._register, param)
         self.conn.commit()
         return True
-
-
-
