@@ -21,18 +21,20 @@ class Client:
     def __init__(self):
         self.v_c_plaintext = None
         self.v_c_ciphertext = None
-        self.tgs_c_plaintext = None
-        self.tgs_c_ciphertext = None
-        self.key_c_tgs = None
-        self.tgt = None
         self.as_c_plaintext = None
         self.as_c_ciphertext = None
+        self.tgs_c_plaintext = None
+        self.tgs_c_ciphertext = None
+
         self.tgs_ip = None
         self.tgs_port = None
         self.server_ip = None
         self.server_port = None
-        self.c_server = None
+
+        self.key_c_tgs = None
         self.key_c_server = None
+        self.tgt = None
+        self.c_server = None
 
     def run(self):
         self.connect_as()
@@ -43,33 +45,35 @@ class Client:
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_sock.connect((AS_IP, AS_PORT))
 
+        # timestamp时间戳
         ts_c_as = time.time()
 
+        # 构造Client给AS发送的消息
         C_AS = {
             'c_name': CLIENT_NAME,
             'c_ip': CLIENT_IP,
             'ts_c_as': ts_c_as
         }
+
         # c给as发送请求消息
-        c_as = mydes.encrypt(str(C_AS), CLIENT_KEY)
-        c_as = c_as.encode()
+        c_as = mydes.encrypt(str(C_AS), CLIENT_KEY).encode()
         client_sock.send(c_as)
-        # 接受AS的回应
+
+        # 接收AS的回应
         self.as_c_ciphertext = client_sock.recv(1024).decode()
         raw_as_c_plaintext = mydes.decrypt(self.as_c_ciphertext, CLIENT_KEY)
         self.as_c_plaintext: dict = ast.literal_eval(raw_as_c_plaintext)  # 最终可使用的明文
 
-        tgs_ip = self.as_c_plaintext['tgs_ip']
-        tgs_port = self.as_c_plaintext['tgs_port']
-
+        # 从明文字典中获取数据
         self.tgt = self.as_c_plaintext['TGT']
         self.key_c_tgs = self.as_c_plaintext['KEY_C_TGS']
-
         ts_as_c = self.as_c_plaintext['ts_as_c']
+
         # 判断时延是否正常，定义可接受的时延小于100秒
         if ts_as_c - ts_c_as < 100:
-            self.tgs_ip = tgs_ip
-            self.tgs_port = tgs_port
+            # 把数据取出来复制给实例变量以在connect_tgs方法中使用
+            self.tgs_ip = self.as_c_plaintext['tgs_ip']
+            self.tgs_port = self.as_c_plaintext['tgs_port']
         else:
             # 时延过大，身份可能不正确
             pass
@@ -77,11 +81,12 @@ class Client:
         client_sock.close()
 
     def connect_tgs(self):
-
         tgs_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tgs_sock.connect((self.tgs_ip, self.tgs_port))
 
+        # timestamp时间戳
         ts_c_tgs = time.time()
+
         # 构建C_TGS
         c_info = {
             'c_name': CLIENT_NAME,
@@ -114,10 +119,9 @@ class Client:
         ts_c_server = time.time()
 
         if (ts_c_server - ts_tgs_c) < 100:
-            # 取出c与v的会话秘钥和ST
+            # 取出c与v的会话秘钥和服务票据ST
             self.key_c_server = self.tgs_c_plaintext['key_c_server']
             st = self.tgs_c_plaintext['ST']
-            #
             c_v_info = {
                 'c_name': CLIENT_NAME,
                 'c_ip': CLIENT_IP,
@@ -175,22 +179,21 @@ class Client:
 class MyLogin(login.Login, Client):
 
     def __init__(self):
-        login.Login.__init__(self)
-        Client.__init__(self)
+        super().__init__()
         self.flag = self.run()
         tk.Label(self.window, text='已通过KDC的认证，成功与server建立连接！', fg='red').pack()
 
         self.output_text = tk.Text(self.window, width=95, height=30)
         self.output_text.pack()
 
-        self.output_text.insert(tk.END, "AS端发送的des密文为：" + str(self.as_c_ciphertext) + '\n' + '\n')
-        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.as_c_plaintext) + '\n' + '\n' + '\n' + '\n')
+        self.output_text.insert(tk.END, "AS端发送的des密文为：" + str(self.as_c_ciphertext) + '\n' * 2)
+        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.as_c_plaintext) + '\n' * 4)
 
-        self.output_text.insert(tk.END, "TGS端发送的des密文为：" + str(self.tgs_c_ciphertext) + '\n' + '\n')
-        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.tgs_c_plaintext) + '\n' + '\n' + '\n' + '\n')
+        self.output_text.insert(tk.END, "TGS端发送的des密文为：" + str(self.tgs_c_ciphertext) + '\n' * 2)
+        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.tgs_c_plaintext) + '\n' * 4)
 
-        self.output_text.insert(tk.END, "server端发送的des密文为：" + str(self.v_c_ciphertext) + '\n' + '\n')
-        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.v_c_plaintext) + '\n' + '\n' + '\n')
+        self.output_text.insert(tk.END, "server端发送的des密文为：" + str(self.v_c_ciphertext) + '\n' * 2)
+        self.output_text.insert(tk.END, "解密后的明文为：" + str(self.v_c_plaintext) + '\n' * 3)
 
 
 if __name__ == '__main__':

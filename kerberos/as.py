@@ -21,13 +21,15 @@ mydes = ArrangeSimpleDES()
 db = DB()
 db.cursor.execute("select username from user")
 username_list = db.cursor.fetchall()
+
+# 从二维元组中取出username并组合成一个列表
 username_list = [username_list[0][0], username_list[1][0]]
 
 
 class AS(threading.Thread):
     def __init__(self, output_text):
         threading.Thread.__init__(self)
-        self.output_text = output_text
+        self.output_text: tk.Text = output_text
 
     def run(self):
         as_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -85,22 +87,21 @@ class AS(threading.Thread):
         self.output_text.insert(tk.END, text)
 
 
-def start_as_server():
+if __name__ == '__main__':
+    window = tk.Tk()
+    window.title("AS服务器")
+    window.geometry("600x400+450+150")
+
+    label = tk.Label(window, text="AS服务器状态:")
+    label.pack()
+
+    output_text = tk.Text(window)
+    output_text.pack(fill=tk.BOTH, expand=True)
+
+    # 实例化一个AS对象
     as_thread = AS(output_text)
-    as_thread.start()
 
+    start_button = tk.Button(window, text="启动AS服务器", command=as_thread.start())
+    start_button.pack()
 
-window = tk.Tk()
-window.title("AS服务器")
-window.geometry("600x400+450+150")
-
-label = tk.Label(window, text="AS服务器状态:")
-label.pack()
-
-output_text = tk.Text(window)
-output_text.pack(fill=tk.BOTH, expand=True)
-
-start_button = tk.Button(window, text="启动AS服务器", command=start_as_server)
-start_button.pack()
-
-window.mainloop()
+    window.mainloop()

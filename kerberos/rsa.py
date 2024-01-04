@@ -3,8 +3,7 @@ import math
 
 
 def prime(n):
-
-    #判断一个数是不是素数
+    # 判断一个数是不是素数
 
     mid = math.sqrt(n)
     mid = math.floor(mid)
@@ -15,8 +14,7 @@ def prime(n):
 
 
 def generate_n_bit_odd(n: int):
-
-    #生成大数,不确定是不是素数
+    # 生成大数,不确定是不是素数
 
     assert n > 1
     return randrange(2 ** (n - 1) + 1, 2 ** n, 2)
@@ -30,8 +28,7 @@ first_50_primes = [3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
 
 
 def get_lowlevel_prime(n):
-
-    #选择满足不能够整除前50个素数的大数，没找到就一直循环
+    # 选择满足不能够整除前50个素数的大数，没找到就一直循环
 
     while True:
         c = generate_n_bit_odd(n)
@@ -42,8 +39,7 @@ def get_lowlevel_prime(n):
 
 
 def miller_rabin_primality_check(n, k=20):
-
-    #由于假设n是一个素数，n-1=a^s*d,s和d是常量，改变a的值，检测20次
+    # 由于假设n是一个素数，n-1=a^s*d,s和d是常量，改变a的值，检测20次
 
     assert n > 3
     if n % 2 == 0:
@@ -71,8 +67,7 @@ def miller_rabin_primality_check(n, k=20):
 
 
 def get_random_prime(num_bits):
-
-   # 获取大素数
+    # 获取大素数
 
     while True:
         pp = get_lowlevel_prime(num_bits)
@@ -81,8 +76,7 @@ def get_random_prime(num_bits):
 
 
 def gcd(a, b):
-
-    #求最大公约数
+    # 求最大公约数
 
     while b:
         a, b = b, a % b
@@ -90,8 +84,7 @@ def gcd(a, b):
 
 
 def lcm(a, b):
-
-    #求最大公倍数
+    # 求最大公倍数
 
     # divisor = gcd(a, b)
     # multiple = (a * b) / divisor
@@ -100,7 +93,6 @@ def lcm(a, b):
 
 
 def exgcd(a, b):
-
     old_s, s = 1, 0
     old_t, t = 0, 1
     while b:

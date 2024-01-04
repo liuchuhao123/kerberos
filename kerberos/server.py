@@ -7,13 +7,11 @@ import rsa
 
 from des import ArrangeSimpleDES
 
-myrsa = rsa.RSA()
-
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 5007
-
 server_key = '22334455'
 
+myrsa = rsa.RSA()
 mydes = ArrangeSimpleDES()
 
 
@@ -64,7 +62,7 @@ class Server(threading.Thread):
                     self.update_output_text('\n' + '明文为: ' + client_v_plaintext + '\n' + '\n' + '\n' + '\n' + '\n')
 
                     # 构建v给C的回复信息,一个+1的时间戳（避免消息重放）
-                    ts_v_c = mydes.encrypt(str(ts_v_c+1), key_c_server)
+                    ts_v_c = mydes.encrypt(str(ts_v_c + 1), key_c_server)
                     ts_v_c = ts_v_c.encode()
                     client_sock.send(ts_v_c)
 
@@ -105,22 +103,21 @@ class Server(threading.Thread):
         self.output_text.insert(tk.END, text)
 
 
-def start_server():
+if __name__ == '__main__':
+    window = tk.Tk()
+    window.title("server服务器")
+    window.geometry("600x400+450+150")
+
+    label = tk.Label(window, text="服务器状态:")
+    label.pack()
+
+    output_text = tk.Text(window)
+    output_text.pack(fill=tk.BOTH, expand=True)
+
+    # 实例化一个Server对象
     server_thread = Server(output_text)
-    server_thread.start()
 
+    start_button = tk.Button(window, text="启动服务器", command=server_thread.start)
+    start_button.pack()
 
-window = tk.Tk()
-window.title("server服务器")
-window.geometry("600x400+450+150")
-
-label = tk.Label(window, text="服务器状态:")
-label.pack()
-
-output_text = tk.Text(window)
-output_text.pack(fill=tk.BOTH, expand=True)
-
-start_button = tk.Button(window, text="启动服务器", command=start_server)
-start_button.pack()
-
-window.mainloop()
+    window.mainloop()

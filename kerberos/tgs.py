@@ -8,9 +8,9 @@ from des import ArrangeSimpleDES
 
 able_service = {'login', 'register', 'add', 'delete', 'search'}
 client_key = '12345678'
-tgs_key = '23456789'
-server_key = '22334455'
-key_c_server = '11223344'
+TGS_KEY = '23456789'
+SERVER_KEY = '22334455'
+KEY_C_SERVER = '11223344'
 
 TGS_IP = '127.0.0.1'
 TGS_PORT = 5001
@@ -48,7 +48,7 @@ class TGS(threading.Thread):
 
                 # 解密TGT并转回字典
                 tgt = client_request['TGT']
-                tgt = mydes.decrypt(tgt, tgs_key)
+                tgt = mydes.decrypt(tgt, TGS_KEY)
                 tgt = ast.literal_eval(tgt)
 
                 # 比较两个时间戳，得出时延
@@ -57,7 +57,7 @@ class TGS(threading.Thread):
 
                 if (ts_tgs_c - ts_as_c) < 100:
 
-                    # 取得sessionkey
+                    # 取得会话密钥
                     key_c_tgs = tgt['KEY_C_TGS']
 
                     # 获取用户自己发送的用户信息并转回字典
@@ -82,17 +82,17 @@ class TGS(threading.Thread):
                             'server_ip': SERVER_IP,
                             'lt_st': lt_st,
                             'ts_tgs_c': ts_tgs_c,
-                            'key_c_server': key_c_server
+                            'key_c_server': KEY_C_SERVER
                         }
 
                         # 对ST加密
-                        ST = mydes.encrypt(str(ST), server_key)
+                        ST = mydes.encrypt(str(ST), SERVER_KEY)
 
                         tgs_c = {
                             'ST': ST,
                             'lt_st': lt_st,
                             'ts_tgs_c': ts_tgs_c,
-                            'key_c_server': key_c_server,
+                            'key_c_server': KEY_C_SERVER,
                             'server_ip': SERVER_IP,
                             'server_port': SERVER_PORT
                         }
@@ -117,22 +117,21 @@ class TGS(threading.Thread):
         self.output_text.insert(tk.END, text)
 
 
-def start_tgs_server():
+if __name__ == '__main__':
+    window = tk.Tk()
+    window.title("TGS服务器")
+    window.geometry("600x400+450+150")
+
+    label = tk.Label(window, text="TGS服务器状态:")
+    label.pack()
+
+    output_text = tk.Text(window)
+    output_text.pack(fill=tk.BOTH, expand=True)
+
+    # 实例化一个TGS对象
     tgs_thread = TGS(output_text)
-    tgs_thread.start()
 
+    start_button = tk.Button(window, text="启动TGS服务器", command=tgs_thread.start())
+    start_button.pack()
 
-window = tk.Tk()
-window.title("TGS服务器")
-window.geometry("600x400+450+150")
-
-label = tk.Label(window, text="TGS服务器状态:")
-label.pack()
-
-output_text = tk.Text(window)
-output_text.pack(fill=tk.BOTH, expand=True)
-
-start_button = tk.Button(window, text="启动TGS服务器", command=start_tgs_server)
-start_button.pack()
-
-window.mainloop()
+    window.mainloop()

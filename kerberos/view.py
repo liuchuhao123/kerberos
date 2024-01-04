@@ -1,19 +1,20 @@
 import tkinter as tk
 from tkinter import ttk
 
+
 class View:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('基于kerberos认证登录的学生管理系统')
         self.window.geometry('880x600+320+80')
-        #定义frame
+        # 定义frame
         self.frame = tk.Frame(self.window)
 
         self.frame_left = tk.Frame(self.frame)
         self.frame_right = tk.Frame(self.frame)
         self.frame_add = tk.Frame(self.frame)
 
-        self.frame_search = tk.Frame(self.frame_left)   #frame_search包括搜索和刷新
+        self.frame_search = tk.Frame(self.frame_left)  # frame_search包括搜索和刷新
         self.frame_list = tk.Frame(self.frame_left)
         self.frame_detail = tk.Frame(self.frame_right)
         # 搜索按钮和输入框
@@ -111,6 +112,7 @@ class View:
         self._lab_clazz.grid(row=1, column=2)
         self._entry_clazz.grid(row=1, column=3)
         self.btn_add.grid(row=1, column=4, ipadx=20, columnspan=2)
+
 
 if __name__ == '__main__':
     view = View()

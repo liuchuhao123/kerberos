@@ -4,6 +4,7 @@ import _thread
 from view import View
 from database import DB
 
+
 class GUI:
     def __init__(self):
         self.db = DB()
@@ -143,6 +144,7 @@ class GUI:
             self.view.data_list.insert('', i, value=d)
             i += 1
         self.view.window.mainloop()
+
 
 if __name__ == '__main__':
     gui = GUI()
